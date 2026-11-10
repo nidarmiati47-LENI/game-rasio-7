@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Game Interaktif: Quest Rasio Gamers Edition - Kelas 7 SMP</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Press+Start+2P&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+    .font-pixel {
+      font-family: 'Press Start 2P', monospace;
+    }
+    .neon-border-cyan {
+      box-shadow: 0 0 15px rgba(6, 182, 212, 0.4);
+    }
+    .neon-border-purple {
+      box-shadow: 0 0 15px rgba(168, 85, 247, 0.4);
+    }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col justify-between selection:bg-cyan-500 selection:text-slate-950">
+
+  <!-- HUD Top Header Game -->
+  <header class="bg-slate-900/90 border-b border-slate-800 backdrop-blur-md sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 py-3 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center gap-3">
+      
+      <!-- Logo Game -->
+      <div class="flex items-center space-x-3">
+        <div class="p-2.5 bg-gradient-to-tr from-cyan-600 to-indigo-600 rounded-xl shadow-lg shadow-cyan-500/20">
+          <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 4a2 2 0 114 0v1a1 1 0 001 1h3a1 1 0 011 1v3a1 1 0 01-1 1h-1a2 2 0 100 4h1a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1v-1a2 2 0 10-4 0v1a1 1 0 01-1 1H7a1 1 0 01-1-1v-3a1 1 0 00-1-1H4a1 1 0 01-1-1v-3a1 1 0 011-1h1a2 2 0 100-4H4a1 1 0 01-1-1V7a1 1 0 011-1h3a1 1 0 001-1V4z"></path>
+          </svg>
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 class="text-lg sm:text-xl font-black tracking-wider text-cyan-400 font-pixel">RASIO QUEST</h1>
+            <span class="bg-purple-900/60 text-purple-300 border border-purple-500/40 text-[10px] font-bold px-2 py-0.5 rounded-md">GAMER EDITION</span>
+          </div>
+          <p class="text-xs text-slate-400 font-medium">Misi Matematika: Konsep & Penerapan Rasio — Kelas VII SMP</p>
+        </div>
+      </div>
+
+      <!-- Player Stats HUD -->
+      <div class="flex items-center gap-4">
+        <!-- EXP Indicator -->
+        <div class="bg-slate-800/80 border border-slate-700/80 px-3.5 py-1.5 rounded-xl flex items-center gap-2">
+          <span class="text-yellow-400 text-xs font-bold font-pixel">EXP:</span>
+          <span id="hud-exp" class="text-sm font-extrabold text-white">0</span>
+        </div>
+
+        <!-- Fullscreen Toggle -->
+        <button onclick="toggleFullscreen()" class="bg-slate-800 hover:bg-slate-700 p-2 rounded-xl text-slate-300 hover:text-white transition text-xs flex items-center gap-1.5 border border-slate-700">
+          <svg class="w-4 h-4 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 4l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4"></path></svg>
+          <span class="hidden sm:inline">Layar Penuh</span>
+        </button>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- Container Game Utama -->
+  <main class="max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8 flex-grow w-full">
+    
+    <!-- Tampilan Gameplay Aktif -->
+    <div id="quiz-view" class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+      
+      <!-- Panel Quest Utama (3 kolom) -->
+      <div class="lg:col-span-3 space-y-6">
+        
+        <!-- Status Bar Quest -->
+        <div class="bg-slate-900 rounded-2xl p-4 border border-slate-800 shadow-xl flex flex-wrap justify-between items-center gap-3">
+          <div class="flex items-center space-x-3">
+            <span class="text-xs font-bold text-slate-400 font-pixel uppercase">QUEST:</span>
+            <span id="current-q-num" class="text-base font-black text-cyan-400 bg-cyan-950/80 px-3 py-1 rounded-lg border border-cyan-500/30">1</span>
+            <span class="text-xs font-semibold text-slate-500">/ 20</span>
+          </div>
+          
+          <!-- Progress Bar HP/EXP -->
+          <div class="flex-grow max-w-xs mx-2">
+            <div class="w-full bg-slate-800 rounded-full h-3 p-0.5 border border-slate-700 overflow-hidden">
+              <div id="progress-bar" class="bg-gradient-to-r from-cyan-500 to-indigo-500 h-full rounded-full transition-all duration-300 shadow-sm" style="width: 5%"></div>
+            </div>
+          </div>
+
+          <div class="text-xs font-semibold px-3 py-1.5 rounded-lg bg-emerald-950/60 text-emerald-400 border border-emerald-500/30">
+            Terjawab: <span id="answered-count">0</span>/20
+          </div>
+        </div>
+
+        <!-- Kartu Soal Quest -->
+        <div class="bg-slate-900 rounded-2xl p-6 sm:p-8 border border-slate-800 shadow-2xl space-y-6 relative overflow-hidden neon-border-cyan">
+          <div class="flex items-center justify-between border-b border-slate-800/80 pb-3">
+            <span id="q-category" class="bg-gradient-to-r from-purple-900 to-indigo-900 text-purple-200 text-[11px] font-bold px-3 py-1 rounded-md uppercase tracking-wider border border-purple-500/30">
+              MOBA Match
+            </span>
+            <span class="text-xs text-slate-400 font-mono flex items-center gap-1">
+              <span class="w-2 h-2 rounded-full bg-cyan-400 animate-pulse"></span> Mode RPG
+            </span>
+          </div>
+
+          <!-- Teks Soal -->
+          <h2 id="question-text" class="text-base sm:text-lg font-bold text-slate-100 leading-relaxed min-h-[60px]">
+            Memuat quest...
+          </h2>
+
+          <!-- Pilihan Jawaban -->
+          <div id="options-container" class="grid grid-cols-1 gap-3 pt-2">
+            <!-- Options dynamically loaded here -->
+          </div>
+
+          <!-- Navigasi Bawah -->
+          <div class="flex justify-between items-center pt-6 border-t border-slate-800">
+            <button id="prev-btn" onclick="prevQuestion()" class="px-5 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold rounded-xl transition text-xs flex items-center gap-2 border border-slate-700">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+              Sebelumnya
+            </button>
+            
+            <button id="next-btn" onclick="nextQuestion()" class="px-6 py-2.5 bg-gradient-to-r from-cyan-600 to-indigo-600 hover:from-cyan-500 hover:to-indigo-500 text-white font-extrabold rounded-xl shadow-lg shadow-cyan-600/30 transition text-xs flex items-center gap-2 border border-cyan-400/30">
+              Berikutnya
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Panel Minimap Soal & Kontrol (1 kolom) -->
+      <div class="space-y-6">
+        <div class="bg-slate-900 rounded-2xl p-5 border border-slate-800 shadow-xl">
+          <h3 class="font-bold text-slate-200 text-xs uppercase tracking-wider mb-3 flex items-center gap-2 font-pixel">
+            <svg class="w-4 h-4 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"></path></svg>
+            Minimap Stage
+          </h3>
+          <div id="question-palette" class="grid grid-cols-5 gap-2">
+            <!-- Palette buttons generated dynamically -->
+          </div>
+          
+          <div class="mt-4 pt-4 border-t border-slate-800 space-y-2 text-[11px]">
+            <div class="flex items-center gap-2 text-slate-400">
+              <span class="w-3 h-3 bg-cyan-500 rounded-sm"></span> Stage Aktif
+            </div>
+            <div class="flex items-center gap-2 text-slate-400">
+              <span class="w-3 h-3 bg-emerald-500 rounded-sm"></span> Quest Selesai
+            </div>
+            <div class="flex items-center gap-2 text-slate-400">
+              <span class="w-3 h-3 bg-slate-800 rounded-sm border border-slate-700"></span> Belum Diselesaikan
+            </div>
+          </div>
+        </div>
+
+        <button onclick="confirmSubmit()" class="w-full py-4 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-black rounded-2xl shadow-xl shadow-emerald-600/20 transition flex items-center justify-center gap-2 text-xs uppercase tracking-widest border border-emerald-400/30">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+          Klaim Victory (Selesai)
+        </button>
+      </div>
+
+    </div>
+
+    <!-- Tampilan Victory / Result Screen -->
+    <div id="result-view" class="hidden space-y-8">
+      
+      <!-- Ringkasan Result -->
+      <div class="bg-slate-900 rounded-3xl p-8 border border-slate-800 shadow-2xl text-center relative overflow-hidden neon-border-purple">
+        <div class="absolute -top-10 -right-10 w-48 h-48 bg-purple-600/10 rounded-full blur-3xl"></div>
+        <div class="absolute -bottom-10 -left-10 w-48 h-48 bg-cyan-600/10 rounded-full blur-3xl"></div>
+
+        <div class="relative z-10 space-y-4 max-w-xl mx-auto">
+          <span id="score-badge" class="inline-block px-4 py-1.5 rounded-full text-xs font-black tracking-widest uppercase bg-cyan-950 text-cyan-300 border border-cyan-500/40 font-pixel">
+            VICTORY ACHIEVED!
+          </span>
+
+          <h2 class="text-3xl sm:text-4xl font-black text-white tracking-wide">Hasil Battle Rasio</h2>
+          
+          <div class="my-6">
+            <div id="score-circle" class="w-40 h-40 mx-auto rounded-full bg-gradient-to-tr from-cyan-600 via-indigo-600 to-purple-600 text-white flex flex-col justify-center items-center shadow-2xl shadow-purple-500/30 border-4 border-slate-800">
+              <span id="score-val" class="text-4xl font-black font-pixel">0</span>
+              <span class="text-[10px] uppercase tracking-widest font-bold text-cyan-200 mt-1">Skor Akhir</span>
+            </div>
+          </div>
+
+          <p id="feedback-text" class="text-sm text-slate-300 font-medium">
+            Memuat statistik pertarungan...
+          </p>
+
+          <div class="grid grid-cols-3 gap-4 pt-4 border-t border-slate-800 text-center">
+            <div class="p-3 bg-slate-950/60 rounded-xl border border-slate-800">
+              <p class="text-[10px] text-slate-400 font-bold uppercase">Benar</p>
+              <p id="correct-count" class="text-xl font-black text-emerald-400">0</p>
+            </div>
+            <div class="p-3 bg-slate-950/60 rounded-xl border border-slate-800">
+              <p class="text-[10px] text-slate-400 font-bold uppercase">Salah</p>
+              <p id="wrong-count" class="text-xl font-black text-rose-400">0</p>
+            </div>
+            <div class="p-3 bg-slate-950/60 rounded-xl border border-slate-800">
+              <p class="text-[10px] text-slate-400 font-bold uppercase">EXP Diperoleh</p>
+              <p id="accuracy-rate" class="text-xl font-black text-cyan-400">0</p>
+            </div>
+          </div>
+
+          <div class="pt-4 flex flex-wrap justify-center gap-3">
+            <button onclick="restartQuiz()" class="px-6 py-3 bg-cyan-600 hover:bg-cyan-500 text-slate-950 font-black rounded-xl shadow-lg transition text-xs flex items-center gap-2 font-pixel">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+              RETRY QUEST
+            </button>
+            <button onclick="scrollToReview()" class="px-6 py-3 bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold rounded-xl shadow-md transition text-xs flex items-center gap-2 border border-slate-700">
+              <svg class="w-4 h-4 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+              Buka Strategy Guide (Pembahasan)
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Strategy Guide / Pembahasan Soal -->
+      <div id="review-section" class="space-y-6">
+        <h3 class="text-lg font-bold text-slate-100 flex items-center gap-2 font-pixel text-cyan-400">
+          <svg class="w-5 h-5 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
+          STRATEGY GUIDE — PEMBAHASAN 20 QUEST
+        </h3>
+        
+        <div id="review-cards-container" class="space-y-4">
+          <!-- Review cards injected here -->
+        </div>
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- Footer Game -->
+  <footer class="bg-slate-900/80 border-t border-slate-800 mt-12 py-4">
+    <div class="max-w-7xl mx-auto px-4 text-center text-xs text-slate-500 font-mono">
+      <p>© Rasio Quest: Gamers Edition — Media Pembelajaran Matematika Kelas 7 SMP</p>
+      <p class="mt-1 text-slate-600">PID Interactive UI System</p>
+    </div>
+  </footer>
+
+  <!-- Script Game Engine -->
+  <script>
+    // Data 20 Soal Gamer Edition
+    const quizData = [
+      {
+        id: 1,
+        category: "Gold Farming",
+        question: "Saat laning phase, Player A mengumpulkan 18 Gold dan Player B mengumpulkan 24 Gold. Bentuk paling sederhana dari rasio Gold Player A terhadap Player B adalah...",
+        options: [
+          { key: "A", text: "2 : 3", isCorrect: false },
+          { key: "B", text: "3 : 4", isCorrect: true },
+          { key: "C", text: "4 : 3", isCorrect: false },
+          { key: "D", text: "3 : 5", isCorrect: false }
+        ],
+        explanation: "Masing-masing angka (18 dan 24) dibagi dengan FPB terbesar yaitu 6. Jadi, (18 ÷ 6) : (24 ÷ 6) = 3 : 4."
+      },
+      {
+        id: 2,
+        category: "Guild Role",
+        question: "Dalam sebuah Guild, terdapat 12 player ber-role Tank dan 16 player ber-role Assassin. Rasio jumlah player Tank terhadap Assassin adalah...",
+        options: [
+          { key: "A", text: "3 : 4", isCorrect: true },
+          { key: "B", text: "4 : 3", isCorrect: false },
+          { key: "C", text: "3 : 7", isCorrect: false },
+          { key: "D", text: "4 : 7", isCorrect: false }
+        ],
+        explanation: "Perbandingan Tank : Assassin = 12 : 16. Masing-masing dibagi FPB yaitu 4, hasilnya 3 : 4."
+      },
+      {
+        id: 3,
+        category: "Inventory Item",
+        question: "Rasio berat antara Health Potion kecil (500 gram) dibanding Health Potion besar (2 kg) di dalam inventory jika disederhanakan adalah...",
+        options: [
+          { key: "A", text: "250 : 1", isCorrect: false },
+          { key: "B", text: "1 : 4", isCorrect: true },
+          { key: "C", text: "1 : 40", isCorrect: false },
+          { key: "D", text: "5 : 2", isCorrect: false }
+        ],
+        explanation: "Samakan satuan dulu ke gram: 2 kg = 2.000 gram. Maka perbandingannya 500 g : 2.000 g = 1 : 4."
+      },
+      {
+        id: 4,
+        category: "Cooldown Skill",
+        question: "Cooldown Skill Ultimate sebuah Hero adalah 30 menit, sedangkan Cooldown Event Guild Raid adalah 2 jam. Perbandingan sederhana antara Cooldown Skill Ultimate dan Event Guild Raid adalah...",
+        options: [
+          { key: "A", text: "15 : 1", isCorrect: false },
+          { key: "B", text: "1 : 4", isCorrect: true },
+          { key: "C", text: "3 : 2", isCorrect: false },
+          { key: "D", text: "1 : 6", isCorrect: false }
+        ],
+        explanation: "Samakan satuan ke menit: 2 jam = 120 menit. Maka perbandingannya 30 : 120 = 1 : 4."
+      },
+      {
+        id: 5,
+        category: "Winrate Ratio",
+        question: "Rasio Winrate antara Gamer A dan Gamer B adalah 3 : 5. Jika Gamer A berhasil meraih 15 kali Victory, berapa kali Gamer B meraih Victory?",
+        options: [
+          { key: "A", text: "20 kali", isCorrect: false },
+          { key: "B", text: "25 kali", isCorrect: true },
+          { key: "C", text: "30 kali", isCorrect: false },
+          { key: "D", text: "35 kali", isCorrect: false }
+        ],
+        explanation: "Victory Gamer B = (5 / 3) × 15 = 25 kali Victory."
+      },
+      {
+        id: 6,
+        category: "Party Raid Setup",
+        question: "Sebuah Party Raid beranggotakan 36 player. Jika rasio player Role Mage dibanding Role Marksman adalah 4 : 5, maka banyak player Role Marksman dalam party tersebut adalah...",
+        options: [
+          { key: "A", text: "16 player", isCorrect: false },
+          { key: "B", text: "18 player", isCorrect: false },
+          { key: "C", text: "20 player", isCorrect: true },
+          { key: "D", text: "24 player", isCorrect: false }
+        ],
+        explanation: "Total perbandingan = 4 + 5 = 9. Banyak Marksman = (5 / 9) × 36 = 20 player."
+      },
+      {
+        id: 7,
+        category: "K/D Kill Stats",
+        question: "Perbandingan total Kill antara Pro Player A dan Pro Player B dalam satu musim adalah 5 : 4. Jika selisih Kill mereka adalah 6, maka total Kill milik Pro Player A adalah...",
+        options: [
+          { key: "A", text: "24 Kill", isCorrect: false },
+          { key: "B", text: "30 Kill", isCorrect: true },
+          { key: "C", text: "36 Kill", isCorrect: false },
+          { key: "D", text: "40 Kill", isCorrect: false }
+        ],
+        explanation: "Selisih perbandingan = 5 - 4 = 1. Kill Player A = (5 / 1) × 6 = 30 Kill."
+      },
+      {
+        id: 8,
+        category: "Blacksmith Crafting",
+        question: "Seorang Blacksmith di RPG membutuhkan 2 Mana Crystal untuk me-ngecraft 3 Armor Epic. Jika ia ingin membuat 9 Armor Epic, berapa Mana Crystal yang dibutuhkan?",
+        options: [
+          { key: "A", text: "4 Crystal", isCorrect: false },
+          { key: "B", text: "5 Crystal", isCorrect: false },
+          { key: "C", text: "6 Crystal", isCorrect: true },
+          { key: "D", text: "8 Crystal", isCorrect: false }
+        ],
+        explanation: "Gunakan rasio senilai: (9 / 3) × 2 = 3 × 2 = 6 Mana Crystal."
+      },
+      {
+        id: 9,
+        category: "Weapon Range",
+        question: "Jarak tembak (range) Senjata A adalah 45 cm pada layar monitor, sedangkan Senjata B memiliki range 1,5 meter. Bentuk sederhana perbandingannya adalah...",
+        options: [
+          { key: "A", text: "3 : 10", isCorrect: true },
+          { key: "B", text: "3 : 1", isCorrect: false },
+          { key: "C", text: "9 : 30", isCorrect: false },
+          { key: "D", text: "1 : 3", isCorrect: false }
+        ],
+        explanation: "Ubah 1,5 meter ke cm = 150 cm. Maka 45 cm : 150 cm = (45 ÷ 15) : (150 ÷ 15) = 3 : 10."
+      },
+      {
+        id: 10,
+        category: "Gold Treasury",
+        question: "Rasio simpanan Gold milik Player Budi dan Player Rian adalah 2 : 7. Jika jumlah Gold mereka berdua digabungkan menjadi 180.000 Gold, maka jumlah Gold milik Player Rian adalah...",
+        options: [
+          { key: "A", text: "40.000 Gold", isCorrect: false },
+          { key: "B", text: "100.000 Gold", isCorrect: false },
+          { key: "C", text: "140.000 Gold", isCorrect: true },
+          { key: "D", text: "160.000 Gold", isCorrect: false }
+        ],
+        explanation: "Total perbandingan = 2 + 7 = 9. Gold Rian = (7 / 9) × 180.000 = 140.000 Gold."
+      },
+      {
+        id: 11,
+        category: "Vehicle Fuel",
+        question: "Sebuah kendaraan di game Battle Royale membutuhkan 4 liter bensin untuk menempuh jarak 60 km. Rasio kebutuhan bensin terhadap jarak tempuh (liter : km) dalam bentuk paling sederhana adalah...",
+        options: [
+          { key: "A", text: "1 : 15", isCorrect: true },
+          { key: "B", text: "1 : 20", isCorrect: false },
+          { key: "C", text: "2 : 15", isCorrect: false },
+          { key: "D", text: "1 : 60", isCorrect: false }
+        ],
+        explanation: "Rasio bensin : jarak = 4 : 60. Bagi kedua bilangan dengan 4, hasilnya 1 : 15."
+      },
+      {
+        id: 12,
+        category: "MOBA Map Dimension",
+        question: "Rasio Panjang dan Lebar sebuah Map Arena MOBA adalah 5 : 3. Jika lebar map tersebut adalah 45 meter, maka panjang map tersebut adalah...",
+        options: [
+          { key: "A", text: "60 meter", isCorrect: false },
+          { key: "B", text: "75 meter", isCorrect: true },
+          { key: "C", text: "90 meter", isCorrect: false },
+          { key: "D", text: "105 meter", isCorrect: false }
+        ],
+        explanation: "Panjang map = (5 / 3) × 45 = 75 meter."
+      },
+      {
+        id: 13,
+        category: "Custom Skin Crafting",
+        question: "Untuk membuat Skin Senjata Custom, rasio bahan Cat Red dan Cat Blue adalah 3 : 8. Jika crafter menggunakan 12 botol Cat Red, berapa botol Cat Blue yang dibutuhkan?",
+        options: [
+          { key: "A", text: "24 botol", isCorrect: false },
+          { key: "B", text: "32 botol", isCorrect: true },
+          { key: "C", text: "36 botol", isCorrect: false },
+          { key: "D", text: "40 botol", isCorrect: false }
+        ],
+        explanation: "Jumlah Cat Blue = (8 / 3) × 12 = 8 × 4 = 32 botol."
+      },
+      {
+        id: 14,
+        category: "Shop Price Comparison",
+        question: "Harga 3 buah Skin Common adalah 12.000 Diamond dan harga 5 buah Emote adalah 10.000 Diamond. Rasio harga 1 Skin Common dibanding 1 Emote adalah...",
+        options: [
+          { key: "A", text: "2 : 1", isCorrect: true },
+          { key: "B", text: "3 : 2", isCorrect: false },
+          { key: "C", text: "4 : 1", isCorrect: false },
+          { key: "D", text: "5 : 3", isCorrect: false }
+        ],
+        explanation: "1 Skin Common = 12.000 / 3 = 4.000. 1 Emote = 10.000 / 5 = 2.000. Rasio = 4.000 : 2.000 = 2 : 1."
+      },
+      {
+        id: 15,
+        category: "Diamond Balance",
+        question: "Jumlah Diamond milik Pro Player A dan Pro Player B berbanding 4 : 9. Jika Diamond milik Pro Player A berjumlah 28 Diamond, maka selisih Diamond mereka berdua adalah...",
+        options: [
+          { key: "A", text: "20 Diamond", isCorrect: false },
+          { key: "B", text: "35 Diamond", isCorrect: true },
+          { key: "C", text: "40 Diamond", isCorrect: false },
+          { key: "D", text: "63 Diamond", isCorrect: false }
+        ],
+        explanation: "Player A punya 4 bagian = 28, jadi 1 bagian = 7. Selisih bagian = 9 - 4 = 5 bagian. Selisih Diamond = 5 × 7 = 35 Diamond."
+      },
+      {
+        id: 16,
+        category: "EXP Progression",
+        question: "Diketahui rasio EXP Level Hero X : Y = 2 : 3 dan Y : Z = 4 : 5. Perbandingan gabungan EXP X : Y : Z adalah...",
+        options: [
+          { key: "A", text: "2 : 3 : 5", isCorrect: false },
+          { key: "B", text: "8 : 12 : 15", isCorrect: true },
+          { key: "C", text: "6 : 12 : 15", isCorrect: false },
+          { key: "D", text: "8 : 12 : 10", isCorrect: false }
+        ],
+        explanation: "Samakan nilai Y (KPK dari 3 dan 4 adalah 12). X:Y = 8:12, Y:Z = 12:15. Maka X:Y:Z = 8 : 12 : 15."
+      },
+      {
+        id: 17,
+        category: "Minimap Scale",
+        question: "Minimap sebuah game Open World dibuat dengan skala 1 : 200. Jika jarak dua lokasi Quest pada minimap adalah 4 cm, maka jarak lokasi sebenarnya di dunia game tersebut adalah...",
+        options: [
+          { key: "A", text: "8 meter", isCorrect: true },
+          { key: "B", text: "80 meter", isCorrect: false },
+          { key: "C", text: "800 meter", isCorrect: false },
+          { key: "D", text: "2 meter", isCorrect: false }
+        ],
+        explanation: "Jarak sebenarnya = 4 cm × 200 = 800 cm = 8 meter."
+      },
+      {
+        id: 18,
+        category: "Gacha Drop Rate",
+        question: "Manakah di antara pilihan pasangan Drop Rate Item Gacha berikut yang memiliki rasio senilai?",
+        options: [
+          { key: "A", text: "2 : 3 dan 6 : 8", isCorrect: false },
+          { key: "B", text: "4 : 5 dan 12 : 15", isCorrect: true },
+          { key: "C", text: "3 : 7 dan 9 : 14", isCorrect: false },
+          { key: "D", text: "5 : 6 dan 15 : 24", isCorrect: false }
+        ],
+        explanation: "Rasio 4 : 5 jika kedua angkanya dikalikan 3 akan menghasilkan 12 : 15. Jadi keduanya senilai."
+      },
+      {
+        id: 19,
+        category: "Potion Management",
+        question: "Di dalam inventory seorang player terdapat Health Potion dan Mana Potion dengan rasio 7 : 3. Jika jumlah Mana Potion adalah 15 botol, maka total seluruh potion di dalam inventory tersebut adalah...",
+        options: [
+          { key: "A", text: "35 botol", isCorrect: false },
+          { key: "B", text: "45 botol", isCorrect: false },
+          { key: "C", text: "50 botol", isCorrect: true },
+          { key: "D", text: "60 botol", isCorrect: false }
+        ],
+        explanation: "Mana Potion 3 bagian = 15 botol (1 bagian = 5). Total bagian = 7 + 3 = 10 bagian. Total Potion = 10 × 5 = 50 botol."
+      },
+      {
+        id: 20,
+        category: "Rare Item Trade",
+        question: "Bentuk sederhana dari perbandingan 2 lusin Skin Epic dibanding 3 kodi Emote Rare adalah...",
+        options: [
+          { key: "A", text: "2 : 3", isCorrect: false },
+          { key: "B", text: "2 : 5", isCorrect: true },
+          { key: "C", text: "4 : 5", isCorrect: false },
+          { key: "D", text: "1 : 3", isCorrect: false }
+        ],
+        explanation: "2 lusin = 24 buah. 3 kodi = 60 buah. Rasio = 24 : 60. Dibagi FPB 12, hasilnya 2 : 5."
+      }
+    ];
+
+    // State Game Engine
+    let currentQuestionIndex = 0;
+    let userAnswers = new Array(quizData.length).fill(null);
+
+    // DOM Elements
+    const quizView = document.getElementById('quiz-view');
+    const resultView = document.getElementById('result-view');
+    const currentQNum = document.getElementById('current-q-num');
+    const progressBar = document.getElementById('progress-bar');
+    const answeredCount = document.getElementById('answered-count');
+    const qCategory = document.getElementById('q-category');
+    const questionText = document.getElementById('question-text');
+    const optionsContainer = document.getElementById('options-container');
+    const paletteContainer = document.getElementById('question-palette');
+    const prevBtn = document.getElementById('prev-btn');
+    const nextBtn = document.getElementById('next-btn');
+    const hudExp = document.getElementById('hud-exp');
+
+    // Inisialisasi
+    document.addEventListener('DOMContentLoaded', () => {
+      renderPalette();
+      loadQuestion();
+    });
+
+    function updateEXP() {
+      let totalEXP = 0;
+      userAnswers.forEach((ans, idx) => {
+        if (ans !== null) {
+          const correctOpt = quizData[idx].options.find(o => o.isCorrect);
+          if (ans === correctOpt.key) {
+            totalEXP += 100;
+          }
+        }
+      });
+      hudExp.innerText = totalEXP;
+    }
+
+    // Render Minimap Palette
+    function renderPalette() {
+      paletteContainer.innerHTML = '';
+      quizData.forEach((q, idx) => {
+        const btn = document.createElement('button');
+        btn.innerText = idx + 1;
+        btn.id = `palette-btn-${idx}`;
+        btn.onclick = () => jumpToQuestion(idx);
+        btn.className = `h-10 rounded-xl font-bold text-xs transition border ${getPaletteStyle(idx)}`;
+        paletteContainer.appendChild(btn);
+      });
+    }
+
+    function getPaletteStyle(idx) {
+      if (idx === currentQuestionIndex) {
+        return 'bg-cyan-500 text-slate-950 border-cyan-300 font-pixel ring-2 ring-cyan-400/50 shadow-md';
+      } else if (userAnswers[idx] !== null) {
+        return 'bg-emerald-600 text-white border-emerald-400';
+      } else {
+        return 'bg-slate-800 text-slate-400 hover:bg-slate-700 border-slate-700';
+      }
+    }
+
+    // Load Soal
+    function loadQuestion() {
+      const q = quizData[currentQuestionIndex];
+      
+      currentQNum.innerText = currentQuestionIndex + 1;
+      qCategory.innerText = q.category;
+      questionText.innerText = q.question;
+
+      const progressPercent = ((currentQuestionIndex + 1) / quizData.length) * 100;
+      progressBar.style.width = `${progressPercent}%`;
+      
+      const countAnswered = userAnswers.filter(a => a !== null).length;
+      answeredCount.innerText = countAnswered;
+
+      updateEXP();
+
+      // Options
+      optionsContainer.innerHTML = '';
+      q.options.forEach((opt) => {
+        const isSelected = userAnswers[currentQuestionIndex] === opt.key;
+        
+        const optionBtn = document.createElement('button');
+        optionBtn.onclick = () => selectOption(opt.key);
+        optionBtn.className = `w-full text-left p-4 rounded-xl font-medium transition border flex items-start gap-3.5 ${
+          isSelected 
+            ? 'bg-cyan-950/80 border-cyan-500 text-cyan-200 ring-2 ring-cyan-500/40 shadow-lg' 
+            : 'bg-slate-800/80 border-slate-700/80 hover:bg-slate-800 text-slate-200 hover:border-slate-600'
+        }`;
+
+        optionBtn.innerHTML = `
+          <span class="w-7 h-7 rounded-lg text-xs font-black flex items-center justify-center shrink-0 transition ${
+            isSelected ? 'bg-cyan-400 text-slate-950 font-pixel' : 'bg-slate-700 text-slate-300'
+          }">${opt.key}</span>
+          <span class="text-xs sm:text-sm leading-relaxed pt-0.5">${opt.text}</span>
+        `;
+        optionsContainer.appendChild(optionBtn);
+      });
+
+      // Nav Buttons
+      prevBtn.disabled = currentQuestionIndex === 0;
+      prevBtn.classList.toggle('opacity-40', currentQuestionIndex === 0);
+      prevBtn.classList.toggle('cursor-not-allowed', currentQuestionIndex === 0);
+
+      if (currentQuestionIndex === quizData.length - 1) {
+        nextBtn.innerHTML = `Klaim Victory <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>`;
+      } else {
+        nextBtn.innerHTML = `Berikutnya <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>`;
+      }
+
+      renderPalette();
+    }
+
+    function selectOption(key) {
+      userAnswers[currentQuestionIndex] = key;
+      loadQuestion();
+    }
+
+    function nextQuestion() {
+      if (currentQuestionIndex < quizData.length - 1) {
+        currentQuestionIndex++;
+        loadQuestion();
+      } else {
+        confirmSubmit();
+      }
+    }
+
+    function prevQuestion() {
+      if (currentQuestionIndex > 0) {
+        currentQuestionIndex--;
+        loadQuestion();
+      }
+    }
+
+    function jumpToQuestion(idx) {
+      currentQuestionIndex = idx;
+      loadQuestion();
+    }
+
+    function confirmSubmit() {
+      const unanswered = userAnswers.filter(a => a === null).length;
+      let msg = "Apakah kamu yakin ingin menyelesaikan Quest dan mengklaim Victory?";
+      if (unanswered > 0) {
+        msg = `Masih ada ${unanswered} stage quest yang belum kamu selesaikan! Yakin mau langsung klaim Victory sekarang?`;
+      }
+      
+      if (confirm(msg)) {
+        calculateResult();
+      }
+    }
+
+    function calculateResult() {
+      let correct = 0;
+      quizData.forEach((q, idx) => {
+        const selectedKey = userAnswers[idx];
+        const correctOpt = q.options.find(o => o.isCorrect);
+        if (selectedKey === correctOpt.key) {
+          correct++;
+        }
+      });
+
+      const wrong = quizData.length - correct;
+      const score = Math.round((correct / quizData.length) * 100);
+      const totalEXP = correct * 100;
+
+      document.getElementById('score-val').innerText = score;
+      document.getElementById('correct-count').innerText = correct;
+      document.getElementById('wrong-count').innerText = wrong;
+      document.getElementById('accuracy-rate').innerText = `+${totalEXP} EXP`;
+
+      const feedbackText = document.getElementById('feedback-text');
+      const scoreBadge = document.getElementById('score-badge');
+
+      if (score >= 85) {
+        scoreBadge.innerText = "RANK: MYTHIC (S-RANK)";
+        scoreBadge.className = "inline-block px-4 py-1.5 rounded-full text-xs font-black uppercase bg-emerald-950 text-emerald-300 border border-emerald-500/40 font-pixel";
+        feedbackText.innerText = "OVERPOWERED! Kamu benar-benar menguasai konsep dan taktik Rasio bagaikan Pro Player Mythic!";
+      } else if (score >= 70) {
+        scoreBadge.innerText = "RANK: LEGEND (A-RANK)";
+        scoreBadge.className = "inline-block px-4 py-1.5 rounded-full text-xs font-bold uppercase bg-amber-950 text-amber-300 border border-amber-500/40 font-pixel";
+        feedbackText.innerText = "GREAT MATCH! Skill rasio kamu sudah cukup mantap. Asah sedikit lagi di Strategy Guide untuk naik ke Mythic!";
+      } else {
+        scoreBadge.innerText = "RANK: EPIC (NEED BUFF)";
+        scoreBadge.className = "inline-block px-4 py-1.5 rounded-full text-xs font-bold uppercase bg-rose-950 text-rose-300 border border-rose-500/40 font-pixel";
+        feedbackText.innerText = "DON'T GIVE UP! Mari baca Strategy Guide di bawah ini untuk mendapatkan buff pengetahuan rasio!";
+      }
+
+      renderReviewCards();
+
+      quizView.classList.add('hidden');
+      resultView.classList.remove('hidden');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function renderReviewCards() {
+      const container = document.getElementById('review-cards-container');
+      container.innerHTML = '';
+
+      quizData.forEach((q, idx) => {
+        const userChoiceKey = userAnswers[idx];
+        const correctOption = q.options.find(o => o.isCorrect);
+        const isUserCorrect = userChoiceKey === correctOption.key;
+
+        const card = document.createElement('div');
+        card.className = `p-5 sm:p-6 rounded-2xl border bg-slate-900 space-y-3 ${
+          isUserCorrect ? 'border-emerald-500/40 bg-emerald-950/10' : 'border-rose-500/40 bg-rose-950/10'
+        }`;
+
+        let optionsListHTML = '';
+        q.options.forEach(opt => {
+          let style = "text-slate-400 bg-slate-950/60 border-slate-800";
+          if (opt.isCorrect) {
+            style = "text-emerald-300 bg-emerald-950/80 border-emerald-500/50 font-bold";
+          } else if (userChoiceKey === opt.key && !opt.isCorrect) {
+            style = "text-rose-300 bg-rose-950/80 border-rose-500/50 font-bold";
+          }
+
+          optionsListHTML += `
+            <div class="p-2.5 rounded-xl border text-xs sm:text-sm flex items-center justify-between ${style}">
+              <span><strong>${opt.key}.</strong> ${opt.text}</span>
+              ${opt.isCorrect ? '<span class="text-[10px] bg-emerald-600 text-slate-950 font-bold px-2 py-0.5 rounded">Kunci Jawaban</span>' : ''}
+              ${userChoiceKey === opt.key && !opt.isCorrect ? '<span class="text-[10px] bg-rose-600 text-white font-bold px-2 py-0.5 rounded">Pilihan Kamu</span>' : ''}
+            </div>
+          `;
+        });
+
+        card.innerHTML = `
+          <div class="flex items-start justify-between gap-3">
+            <span class="text-[10px] font-pixel px-2.5 py-1 rounded-md ${
+              isUserCorrect ? 'bg-emerald-950 text-emerald-300 border border-emerald-500/30' : 'bg-rose-950 text-rose-300 border border-rose-500/30'
+            }">
+              STAGE ${idx + 1} • ${isUserCorrect ? 'CLEARED (+100 EXP)' : 'FAILED'}
+            </span>
+            <span class="text-xs font-bold text-purple-400 uppercase tracking-wider">${q.category}</span>
+          </div>
+
+          <p class="font-bold text-slate-100 text-sm sm:text-base">${q.question}</p>
+
+          <div class="grid grid-cols-1 gap-2 pt-1">
+            ${optionsListHTML}
+          </div>
+
+          <div class="p-3.5 bg-slate-950/80 rounded-xl border border-cyan-500/30 text-xs text-cyan-200 mt-2 leading-relaxed">
+            <strong class="text-cyan-400 font-pixel">🎮 STRATEGY GUIDE:</strong><br>${q.explanation}
+          </div>
+        `;
+
+        container.appendChild(card);
+      });
+    }
+
+    function restartQuiz() {
+      currentQuestionIndex = 0;
+      userAnswers = new Array(quizData.length).fill(null);
+      resultView.classList.add('hidden');
+      quizView.classList.remove('hidden');
+      loadQuestion();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function scrollToReview() {
+      document.getElementById('review-section').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function toggleFullscreen() {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(err => {
+          alert(`Gagal masuk mode layar penuh: ${err.message}`);
+        });
+      } else {
+        if (document.exitFullscreen) {
+          document.exitFullscreen();
+        }
+      }
+    }
+  </script>
+</body>
+</html>
